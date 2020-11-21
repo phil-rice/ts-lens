@@ -1,6 +1,6 @@
 import {Tuple} from "../utils";
 import {Lens} from "./optics";
-import {DomainWithCache} from "../componentFromServer/ComponentFromServer";
+
 
 export interface LensProps<Domain, ReactElement, Main, T> {context: LensContext<Domain, ReactElement, Main, T>}
 
@@ -37,32 +37,11 @@ export class LensContext<Domain, ReactElement, Main, T> {
      *
      * If you only want to change a little bit of this json then 'setFrom' can be used*/
     setJson(json: T) {this.dangerouslySetMain(this.lens.set(this.main, json))}
-    render<Element>(fn: (context: LensContext<Domain, Element, Main, T>) => Element) {return fn(this)}
+
     setFrom<Child>(lens: Lens<T, Child>, json: Child) {this.dangerouslySetMain(this.lens.andThen(lens).set(this.main, json))}
     setFromTwo<Other>(lens: Lens<Main, Other>) {return (fn: (t: T, o: Other) => Tuple<T, Other>) => this.dangerouslySetMain(Lens.transform2(this.lens, lens)(fn)(this.main))}
 
 
-    /** This is the 'make it so that when I change the json things get rendered properly' configuration
-     *
-     * Example
-     * LensContext.setJson<Domain, React.ReactElement, GameData>(gameDomain, element, c => (ReactDOM.render(<SimpleGame context={c}/>, element)))
-     *
-     * The 'setJson' method is used to render a react component onto a html element. Whenever the json is changed by the child components, suitable rendering takes place
-     */
-    static setJson = <Domain, ReactElement, Main>(domain: Domain, element: HTMLElement, fn: (lc: LensContext<Domain, ReactElement, Main, Main>) => void): (m: Main) => void =>
-        (main: Main) => {
-            console.log('setJson', main)
-            return fn(new LensContext(domain, main, LensContext.setJson(domain, element, fn), Lens.identity()));
-        }
 
-    static loadAndRenderIntoElement<Domain extends DomainWithCache<ReactElement>, Main, ReactElement>(domain: Domain, html: HTMLElement, processContext: (c: LensContext<Domain, ReactElement, Main, Main>, html: HTMLElement) => void): (url: string) => Promise<void> {
-        return url => {
-            console.log("fetching", url)
-            return fetch(url).then(r => r.json()).then(json => {
-                console.log('setting json', json)
-                domain.componentCache.loadFromBlob(json).then(() => LensContext.setJson<Domain, ReactElement, Main>(domain, html, c => processContext(c, html))(json))
-            })
-        }
-    }
 }
 

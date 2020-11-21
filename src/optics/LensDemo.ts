@@ -1,7 +1,5 @@
 import {Lens} from "./optics";
-import {BoardData, GameData, NoughtOrCross} from "../domain/GameDomain";
-import React from "react";
-import {GameProps} from "../domain/SimpleGameDomain";
+
 
 export interface Msg {order: Order}
 interface Order {
@@ -65,14 +63,12 @@ function setCupMadeOf(json: Msg, madeOf: CupMadeOf): Msg {
 //What if we decide to get rid of the order
 //who much code is impacted
 
-let msgToOrderLens = new Lens<Msg, Order>(j => j.order, (m, order) => ({...m, order}))
-let orderToCupLens = new Lens<Order, Cup>(j => j.cup, (o, cup) => ({...o, cup}))
-let cupToSizeLens = new Lens<Cup, Cupsize>(j => j.size, (c, size) => ({...c, size}))
-let cupToMadeOfLens = new Lens<Cup, CupMadeOf>(j => j.madeOf, (c, madeOf) => ({...c, madeOf}))
 
 
-let msgToCupsizeLens = msgToOrderLens.andThen(orderToCupLens).andThen(cupToSizeLens)
-let msgToMadeOfLens = msgToOrderLens.andThen(orderToCupLens).andThen(cupToMadeOfLens)
+
+let msgToCupsizeLens = Lens.build<Msg>().then('order').then('cup').then('size')
+let msgToMadeOfLens = Lens.build<Msg>().then('order').then('cup').then('madeOf')
+let setCupMadeOf2 = msgToMadeOfLens.set
 
 console.log(msgToCupsizeLens.get(json))
 
@@ -91,10 +87,6 @@ interface Body {chest: Chest}
 interface Head {eyeCount: number}
 interface Chest {stomach: Stomach}
 interface Stomach {contents: any[]}
-
-
-
-
 
 
 function eat(dragon: Dragon, item: any): Dragon {
