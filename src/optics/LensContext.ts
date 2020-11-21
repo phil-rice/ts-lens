@@ -2,9 +2,9 @@ import {Tuple} from "../utils";
 import {Lens} from "./optics";
 
 
-export interface LensProps<Domain, ReactElement, Main, T> {context: LensContext<Domain, ReactElement, Main, T>}
+export interface LensProps<Domain,  Main, T> {context: LensContext<Domain,  Main, T>}
 
-export class LensContext<Domain, ReactElement, Main, T> {
+export class LensContext<Domain,  Main, T> {
     /** A place for dependancy injection. The domain contains all those 'global variables' like 'where is my data source'. The domain shouldn't
      * really change across time (although caches are fine)
      */
@@ -25,10 +25,10 @@ export class LensContext<Domain, ReactElement, Main, T> {
 
     /** If just 'walking down the json' using field names this is great. The parameter 'fieldName' is a 'key' of the current focused place,
      * and this returns a new context focused on the json under the field name */
-    focusOn<K extends keyof T>(fieldName: K): LensContext<Domain, ReactElement, Main, T[K]> {return this.withLens(Lens.build<T>().then(fieldName))}
+    focusOn<K extends keyof T>(fieldName: K): LensContext<Domain,  Main, T[K]> {return this.withLens(Lens.build<T>().then(fieldName))}
 
     /** When we want to focus on something like 'the nth item' then 'withLens' is used. This returns a context focused on the block of json under the lens starting from 'here' */
-    withLens<NewT>(lens: Lens<T, NewT>): LensContext<Domain, ReactElement, Main, NewT> {return new LensContext(this.domain, this.main, this.dangerouslySetMain, this.lens.andThen(lens))}
+    withLens<NewT>(lens: Lens<T, NewT>): LensContext<Domain,  Main, NewT> {return new LensContext(this.domain, this.main, this.dangerouslySetMain, this.lens.andThen(lens))}
 
     /** The json that this context is focused on */
     json(): T {return this.lens.get(this.main)}

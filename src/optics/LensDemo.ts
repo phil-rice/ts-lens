@@ -67,6 +67,8 @@ function setCupMadeOf(json: Msg, madeOf: CupMadeOf): Msg {
 
 
 let msgToCupsizeLens = Lens.build<Msg>().then('order').then('cup').then('size')
+let getCupSize2= msgToCupsizeLens.get
+let setCupSize2= msgToCupsizeLens.get
 let msgToMadeOfLens = Lens.build<Msg>().then('order').then('cup').then('madeOf')
 let setCupMadeOf2 = msgToMadeOfLens.set
 
